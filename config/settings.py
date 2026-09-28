@@ -41,8 +41,8 @@ RETRIEVAL_CONFIG = {
 # LLM設定
 LLM_CONFIG = {
     "model": {
-        "default": "gemini-2.0-flash-exp",
-        "options": ["gemini-2.0-flash-exp", "gemini-1.5-flash", "gemini-1.5-pro"]
+        "default": "gemini-3.1-flash-lite",
+        "options": ["gemini-3.1-flash-lite"]
     },
     "temperature": {
         "default": 0.0,
@@ -60,10 +60,12 @@ LLM_CONFIG = {
 
 # Embedding設定
 EMBEDDING_CONFIG = {
-    "model": "models/text-embedding-004",
+    "model": "gemini-embedding-2",
     "task_type": "retrieval_document",
     "dimension": 768
 }
+
+
 
 # プロンプトテンプレート
 QA_PROMPT_TEMPLATE = """以下のコンテキストを使用して質問に回答してください。
@@ -89,7 +91,7 @@ SUPPORTED_FILE_TYPES = ["pdf", "docx", "txt", "md"]
 MAX_FILE_SIZE_MB = 10
 
 # パフォーマンス設定
-BATCH_SIZE = 100
+BATCH_SIZE = 5
 API_RETRY_ATTEMPTS = 3
 API_RETRY_MIN_WAIT = 4
 API_RETRY_MAX_WAIT = 10

@@ -195,11 +195,6 @@ def main():
         else:
             st.info("インデックスは作成されていません")
 
-        if st.session_state.indexed_files:
-            with st.expander("インデックス化ファイル"):
-                for file in st.session_state.indexed_files:
-                    st.write(f"- {file}")
-
     # メイン画面
     # システム初期化
     if st.session_state.vector_store is None:
@@ -216,7 +211,10 @@ def main():
             if message["role"] == "assistant" and "sources" in message:
                 with st.expander("📚 参照元"):
                     for source in message["sources"]:
-                        st.markdown(f"**[{source['rank']}] {source['metadata'].get('source', '')}** (スコア: {source['score']:.4f})")
+                        st.markdown(
+                            f"**[{source['rank']}] {source['metadata'].get('source', '')}** "
+                            f"(スコア: {source['score']:.4f})"
+                        )
                         st.text(source['content'][:200] + "...")
                         st.divider()
 

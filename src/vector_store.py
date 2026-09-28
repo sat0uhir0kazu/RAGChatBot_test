@@ -4,11 +4,12 @@ ChromaDBを使用したベクトルストアの管理
 """
 
 import os
+import time
 from typing import List, Optional
 from langchain_community.vectorstores import Chroma
-from langchain.schema import Document
+from langchain_core.documents import Document
 from config.settings import CHROMA_DB_PATH, COLLECTION_NAME
-
+    
 
 class VectorStore:
     """ChromaDBを使用したベクトルストア管理クラス"""
@@ -28,6 +29,7 @@ class VectorStore:
         # ディレクトリが存在しない場合は作成
         os.makedirs(self.persist_directory, exist_ok=True)
 
+
     def create_from_documents(self, documents: List[Document]) -> None:
         """
         ドキュメントからベクトルストアを作成
@@ -35,12 +37,23 @@ class VectorStore:
         Args:
             documents: インデックス化するドキュメントのリスト
         """
-        self.vector_store = Chroma.from_documents(
-            documents=documents,
-            embedding=self.embedding_function,
+        self.vector_store = Chroma(
             persist_directory=self.persist_directory,
+            embedding_function=self.embedding_function,
             collection_name=self.collection_name
         )
+
+        batch_size = 20
+
+        for i in range(0, len(documents), batch_size):
+            batch = documents[i:i + batch_size]
+            print(f"Embedding追加中: {i + 1}~{i + len(batch)} / {len(documents)}")
+
+            self.vector_store.add_documents(batch)
+
+            #APIレート制限対策
+            if i + batch_size < len(documents):
+                time.sleep(15)
 
     def load_existing(self) -> bool:
         """

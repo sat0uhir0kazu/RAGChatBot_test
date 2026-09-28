@@ -7,8 +7,8 @@ import os
 import time
 from typing import Dict, Any
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
+from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 from tenacity import retry, stop_after_attempt, wait_exponential
 from src.retriever import Retriever
 from config.settings import (
@@ -66,10 +66,7 @@ class QAChain:
         )
 
         # チェーンの作成
-        self.chain = LLMChain(
-            llm=self.llm,
-            prompt=self.prompt_template
-        )
+        self.chain = self.prompt_template | self.llm | StrOutputParser()
 
     @retry(
         stop=stop_after_attempt(API_RETRY_ATTEMPTS),
@@ -128,7 +125,7 @@ class QAChain:
             total_time = search_time + generation_time
 
             return {
-                'answer': response['text'],
+                'answer': response,
                 'sources': formatted_sources,
                 'performance': {
                     'search_time': search_time,
@@ -140,6 +137,7 @@ class QAChain:
 
         except Exception as e:
             raise Exception(f"回答生成エラー: {str(e)}")
+
 
     def answer_question_stream(self, question: str, top_k: int = None, score_threshold: float = None):
         """
@@ -209,7 +207,4 @@ class QAChain:
         )
 
         # チェーンを再作成
-        self.chain = LLMChain(
-            llm=self.llm,
-            prompt=self.prompt_template
-        )
+        self.chain = self.prompt_template | self.llm | StrOutputParser()
